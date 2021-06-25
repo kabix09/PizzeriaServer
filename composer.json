@@ -1,0 +1,22 @@
+{
+  "name": "kabix09/pizzeria-api-server",
+  "description": "Api server in php for pizzeria client ",
+  "keywords": ["Api Server", "Pizza Server", "Pizza"],
+  "type": "project",
+  "licence": "GNU3",
+  "authors": [
+    {
+      "name": "kabix09",
+      "email": "kabix009@gmail.com"
+    }
+  ],
+  "minimum-stability": "dev",
+  "autoload": {
+    "psr-4": {
+      "Pizzeria\\": "src/"
+    }
+  },
+  "require": {
+
+  }
+}
