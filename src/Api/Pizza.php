@@ -5,120 +5,61 @@ namespace Pizzeria\Api;
 
 use Kreait\Firebase\Contract\Database;
 use Kreait\Firebase\Exception\DatabaseException;
+use Lcobucci\JWT\Validation\Validator;
 use Pizzeria\Connection\DbConnection;
 use Pizzeria\Mapper\GenericMapper;
 use Pizzeria\Repository\IngredientRepository;
 use Pizzeria\Repository\PizzaRepository;
 use Pizzeria\Validator\PizzaValidator;
 
-class Pizza
+final class Pizza extends GenericApi
 {
-    /**
-     * @var Database
-     */
-    private $connection;
-    
+    protected const ERRORS = [
+        "missing_name" => "missing pizza name",
+        "wrong_name" => "wrong pizza name - this pizza doesn't exist"
+    ];
+
     /**
      * @var PizzaRepository
      */
     private $pizzasRepository;
 
     /**
-     * @var PizzaValidator
+     * @var IngredientRepository
      */
-    private $validator;
-
-    private const ERRORS = [
-        "missing_name" => "missing pizza name",
-        "wrong_name" => "wrong pizza name - this pizza doesn't exist"
-    ];
+    private $ingredientsRepository;
 
     public function __construct(DbConnection $dbConnection)
     {
-        $this->connection = $dbConnection->getFirebase();
-        
-        $this->pizzasRepository = new PizzaRepository($dbConnection);
+        parent::__construct($dbConnection, new PizzaRepository($dbConnection), new PizzaValidator());
+
         $this->ingredientsRepository = new IngredientRepository($dbConnection);
-
-        $this->validator = new PizzaValidator();
     }
 
-    /**
-     * @return array
-     */
-    public function getAll(): string
-    {
-        $pizzas = $this->pizzasRepository->getAll();
-
-        $resultArray = [];
-        foreach ($pizzas as $key => $value) {
-            $resultArray[] = GenericMapper::noSqlMapToArray($value, $key);
-        }
-
-        return json_encode($resultArray);
-    }
-
-    /**
-     * @param string $pizzaName
-     * @return string
-     * @throws DatabaseException
-     */
-    public function getByName(string $pizzaName = ""): string
-    {
-        if($pizzaName && isset($pizzaName) && !$this->pizzasRepository->isExists($pizzaName)) {
-            throw new \RuntimeException(self::ERRORS['wrong_name']);
-        }
-
-        // todo: set success Response - contain requested data
-        $pizza = $this->pizzasRepository->getByName($pizzaName);
-
-        return json_encode(GenericMapper::noSqlMapToArray($pizza, $pizzaName));
-    }
 
     /* -------- TOOLS FOR ADMIN -------- */
 
     /**
-     * @param array $newPizza
+     * @param array $newElement
      * @return string
      * @throws DatabaseException
      */
-    public function post(array $newPizza): string
+    public function post(array $newElement): string
     {
-        if(empty($newPizza) || !isset($newPizza)) {
-            throw new \RuntimeException(self::ERRORS['missing_name']);     // error - required name
-        }
+        parent::post($newElement);
 
-        //$existingIngredients = $this->ingredientsRepository->getAll();
-        $this->validator->validate($newPizza, ["chees", "tomato", "onion", "potatoes"]);    // if not validate - throw exception
+        $existingIngredients = $this->ingredientsRepository->getAll();
+        $this->validator->validate($newElement, $existingIngredients);    // if not validate - throw exception
 
         /** @var string $pizzaName */
-        $pizzaName = $newPizza["id"];
+        $pizzaName = $newElement["id"];
 
-        $this->pizzasRepository->create(
+        $this->repository->create(
             $pizzaName,
-            array_slice($newPizza, 1, count($newPizza)-1,  true)
+            array_slice($newElement, 1, count($newElement)-1,  true)
         );
 
-        return json_encode($this->pizzasRepository->getByName($pizzaName));
+        return json_encode($this->repository->getByName($pizzaName));
     }
 
-    /**
-     * @param string $pizzaName
-     * @return bool
-     * @throws DatabaseException
-     */
-    public function delete(string $pizzaName): bool
-    {
-        if(empty($pizzaName) || !isset($pizzaName)) {
-            throw new \RuntimeException(self::ERRORS['missing_name']);     // error - required name
-        }
-
-        if(!$this->pizzasRepository->isExists($pizzaName)) {
-            throw new \RuntimeException(self::ERRORS['wrong_name']);    // error - required name
-        }
-
-        $this->pizzasRepository->remove($pizzaName);
-
-        return true;
-    }
 }
