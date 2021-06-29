@@ -88,23 +88,31 @@ class Server
     {
         if(!empty($response->getHeaders())) {
             foreach ($response->getHeaders() as $key => $value) {
-                header(
-                    sprintf(self::HEADER_SCHEMA, $key, $value),
-                    true,
-                    (int)$response->getStatusCode()
-                );
+                self::setHeader($key, $value, true, (int)$response->getStatusCode());
             }
         }
 
-        header(
-            sprintf(self::HEADER_SCHEMA, Response::HEADER_CONTENT_TYPE, Response::CONTENT_TYPE_JSON),
-            true
-        );
+        self::setHeader(Response::HEADER_CONTENT_TYPE, Response::CONTENT_TYPE_JSON);
 
         if(!empty($response->getCookies())) {
             foreach ($response->getCookies() as $key => $value) {
                 setcookie($key, $value);
             }
         }
+    }
+
+    /**
+     * @param string $header
+     * @param string $contentType
+     * @param bool $replace
+     * @param int|null $statusCode
+     */
+    public static function setHeader(string $header, string $contentType, bool $replace = true, $statusCode = Response::STATUS_200): void
+    {
+        header(
+            sprintf(self::HEADER_SCHEMA, $header, $contentType),
+            $replace,
+            (int)$statusCode
+        );
     }
 }
