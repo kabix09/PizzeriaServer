@@ -9,9 +9,14 @@ use Pizzeria\Connection\DbConnection;
 use Pizzeria\Mapper\GenericMapper;
 use Pizzeria\Repository\GenericRepository;
 use Pizzeria\Validator\GenericValidator;
+use Pizzeria\Web\Request;
+use Pizzeria\Web\Response;
+use Pizzeria\Web\Server;
 
 abstract class GenericApi implements IApi
 {
+    public const ID_FIELD = 'id';
+    public const NAME_FIELD = 'name';
     protected const ERRORS = [];
 
     /**
@@ -33,6 +38,7 @@ abstract class GenericApi implements IApi
      * GenericApi constructor.
      * @param DbConnection $dbConnection
      * @param GenericRepository $repository
+     * @param GenericValidator $validator
      */
     public function __construct(DbConnection $dbConnection, GenericRepository $repository, GenericValidator $validator)
     {
@@ -42,10 +48,26 @@ abstract class GenericApi implements IApi
     }
 
     /**
-     * @return string
+     * @param Request $request
+     * @return array
      * @throws DatabaseException
      */
-    public function getAll(): string
+    public function get(Request $request): array
+    {
+        $name = $request->getDataByKey(static::NAME_FIELD);
+
+        if($name && isset($name)) {
+             return $this->getByName($name);
+        }
+
+        return $this->getAll();
+    }
+
+    /**
+     * @return array
+     * @throws DatabaseException
+     */
+    public function getAll(): array
     {
         $elements = $this->repository->getAll();
 
@@ -54,15 +76,17 @@ abstract class GenericApi implements IApi
             $resultArray[] = GenericMapper::noSqlMapToArray($value, $key);
         }
 
-        return json_encode($resultArray);
+        return $resultArray;
     }
 
     /**
+     * Return one element matched by name / id
+     *
      * @param string $name
-     * @return string
+     * @return array
      * @throws DatabaseException
      */
-    public function getByName(string $name): string
+    public function getByName(string $name): array
     {
         if($name && isset($name) && !$this->repository->isExists($name)) {
             throw new \RuntimeException(static::ERRORS['wrong_name']);
@@ -71,34 +95,43 @@ abstract class GenericApi implements IApi
         // todo: set success Response - contain requested data
         $result = $this->repository->getByName($name);
 
-        return json_encode(GenericMapper::noSqlMapToArray($result, $name));
+        // build response
+        return GenericMapper::noSqlMapToArray($result, $name);
     }
 
-    public function post(array $newElement): string
+    /**
+     * @param Request $request
+     * @return array
+     */
+    public function post(Request $request): array
     {
+        $newElement = $request->getData();
+
         if(empty($newElement) || !isset($newElement)) {
             throw new \RuntimeException(static::ERRORS['missing_name']);     // error - required name
         }
 
-        return "";
+        return [];
     }
 
     /**
-     * @param string $name
+     * @param Request $request
      * @return bool
      * @throws DatabaseException
      */
-    public function delete(string $name): bool
+    public function delete(Request $request): bool
     {
-        if(empty($name) || !isset($name)) {
+        $id = $request->getDataByKey(static::ID_FIELD);
+
+        if(empty($id) || !isset($id)) {
             throw new \RuntimeException(static::ERRORS['missing_name']);     // error - required name
         }
 
-        if(!$this->repository->isExists($name)) {
+        if(!$this->repository->isExists($id)) {
             throw new \RuntimeException(static::ERRORS['wrong_name']);    // error - required name
         }
 
-        $this->repository->remove($name);
+        $this->repository->remove($id);
 
         return true;
     }

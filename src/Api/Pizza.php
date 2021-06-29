@@ -11,6 +11,8 @@ use Pizzeria\Mapper\GenericMapper;
 use Pizzeria\Repository\IngredientRepository;
 use Pizzeria\Repository\PizzaRepository;
 use Pizzeria\Validator\PizzaValidator;
+use Pizzeria\Web\Request;
+use Pizzeria\Web\Response;
 
 final class Pizza extends GenericApi
 {
@@ -20,15 +22,14 @@ final class Pizza extends GenericApi
     ];
 
     /**
-     * @var PizzaRepository
-     */
-    private $pizzasRepository;
-
-    /**
      * @var IngredientRepository
      */
     private $ingredientsRepository;
 
+    /**
+     * Pizza constructor.
+     * @param DbConnection $dbConnection
+     */
     public function __construct(DbConnection $dbConnection)
     {
         parent::__construct($dbConnection, new PizzaRepository($dbConnection), new PizzaValidator());
@@ -40,26 +41,29 @@ final class Pizza extends GenericApi
     /* -------- TOOLS FOR ADMIN -------- */
 
     /**
-     * @param array $newElement
-     * @return string
+     * Return one element
+     *
+     * @param Request $request
+     * @return array
      * @throws DatabaseException
      */
-    public function post(array $newElement): string
+    public function post(Request $request): array
     {
-        parent::post($newElement);
+        parent::post($request);
 
+        $newElement = $request->getData();
         $existingIngredients = $this->ingredientsRepository->getAll();
         $this->validator->validate($newElement, $existingIngredients);    // if not validate - throw exception
 
         /** @var string $pizzaName */
-        $pizzaName = $newElement["id"];
+        $pizzaName = $request->getDataByKey(self::ID_FIELD);
 
         $this->repository->create(
             $pizzaName,
             array_slice($newElement, 1, count($newElement)-1,  true)
         );
 
-        return json_encode($this->repository->getByName($pizzaName));
+        return $this->repository->getByName($pizzaName);
     }
 
 }

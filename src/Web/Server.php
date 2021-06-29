@@ -14,14 +14,6 @@ class Server
      * @var GenericApi
      */
     private $api;
-    /**
-     * @var Request
-     */
-    private $request;
-    /**
-     * @var Response
-     */
-    private $response;
 
     /**
      * Server constructor.
@@ -30,8 +22,6 @@ class Server
     public function __construct(GenericApi $api)
     {
         $this->api = $api;
-        $this->request = new Request();
-        $this->response = new Response($this->request);
     }
 
     /**
@@ -47,7 +37,8 @@ class Server
             true
         );
 
-        $request->setData(array_merge($jsonData ?? array(), $_REQUEST ?? array())
+        $request->setData(
+            array_merge($jsonData ?? array(), $_REQUEST ?? array())
         );
 
         try{
@@ -56,12 +47,12 @@ class Server
             switch (strtoupper($request->getMethod())) {
 
                 case Request::METHOD_GET: {
-                    $responseData = $this->api->getAll();
+                    $responseData = $this->api->get($request);
                     break;
                 }
 
                 case Request::METHOD_POST: {
-                    $responseData = $this->api->post($request->getData());
+                    $responseData = $this->api->post($request);
                     break;
                 }
 
@@ -71,7 +62,7 @@ class Server
                 }
 
                 case Request::METHOD_DELETE: {
-                    $responseData = $this->api->delete($request->getDataByKey('name'));
+                    $responseData = $this->api->delete($request);
                     break;
                 }
             }

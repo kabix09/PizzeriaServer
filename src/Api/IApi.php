@@ -3,13 +3,36 @@ declare(strict_types=1);
 
 namespace Pizzeria\Api;
 
+use Pizzeria\Web\Request;
+
 interface IApi
 {
-    public function getAll(): string;
+    /**
+     * @param Request $request
+     * @return array
+     */
+    public function get(Request $request): array;
 
-    public function getByName(string $name): string;
+    /**
+     * @return array
+     */
+    public function getAll(): array;
 
-    public function post(array $newElement): string;
+    /**
+     * @param string $name
+     * @return array
+     */
+    public function getByName(string $name): array;
 
-    public function delete(string $name): bool;
+    /**
+     * @param Request $request
+     * @return array
+     */
+    public function post(Request $request): array;
+
+    /**
+     * @param Request $request
+     * @return bool
+     */
+    public function delete(Request $request): bool;
 }

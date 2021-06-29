@@ -3,9 +3,11 @@ declare(strict_types=1);
 
 namespace Pizzeria\Api;
 
+use Kreait\Firebase\Exception\DatabaseException;
 use Pizzeria\Connection\DbConnection;
 use Pizzeria\Repository\SauceRepository;
 use Pizzeria\Validator\SauceValidator;
+use Pizzeria\Web\Request;
 
 class Sauce extends GenericApi
 {
@@ -19,24 +21,25 @@ class Sauce extends GenericApi
     }
 
     /**
-     * @param array $newElement
-     * @return string
-     * @throws \Kreait\Firebase\Exception\DatabaseException
+     * @param Request $request
+     * @return array
+     * @throws DatabaseException
      */
-    public function post(array $newElement): string
+    public function post(Request $request): array
     {
-        parent::post($newElement);
+        parent::post($request);
 
+        $newElement = $request->getData();
         $this->validator->validate($newElement);    // if not validate - throw exception
 
         /** @var string $ingredientName */
-        $ingredientName = $newElement["id"];
+        $ingredientName = $request->getDataByKey(self::ID_FIELD);
 
         $this->repository->create(
             $ingredientName,
             array_slice($newElement, 1, count($newElement)-1,  true)
         );
 
-        return json_encode($this->repository->getByName($ingredientName));
+        return $this->repository->getByName($ingredientName);
     }
 }
