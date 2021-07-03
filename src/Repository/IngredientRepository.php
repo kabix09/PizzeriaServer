@@ -7,7 +7,7 @@ use Pizzeria\Connection\DbConnection;
 
 class IngredientRepository extends GenericRepository
 {
-    public const DB_NAME = 'ingredients';
+    public const DB_NAME = 'ingredient';
 
     /**
      * IngredientRepository constructor.

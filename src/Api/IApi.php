@@ -14,17 +14,6 @@ interface IApi
     public function get(Request $request): array;
 
     /**
-     * @return array
-     */
-    public function getAll(): array;
-
-    /**
-     * @param string $name
-     * @return array
-     */
-    public function getByName(string $name): array;
-
-    /**
      * @param Request $request
      * @return array
      */
@@ -32,7 +21,13 @@ interface IApi
 
     /**
      * @param Request $request
+     * @return array
+     */
+    public function put(Request $request): array;
+
+    /**
+     * @param Request $request
      * @return bool
      */
-    public function delete(Request $request): bool;
+    public function delete(Request $request): array;
 }

@@ -12,5 +12,4 @@ interface IMapper
      * @return array
      */
     public static function buildObject(array $data, array $model): array;
-
 }

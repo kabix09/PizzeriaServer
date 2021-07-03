@@ -5,7 +5,6 @@ namespace Pizzeria\Mapper;
 
 class GenericMapper implements IMapper
 {
-
     public static function buildObject(array $data, array $model): array
     {
         $newObject = [];

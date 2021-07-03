@@ -9,7 +9,7 @@ use Kreait\Firebase\Database;
 
 final class PizzaRepository extends GenericRepository
 {
-    public const DB_NAME = 'pizzas';
+    public const DB_NAME = 'pizza';
 
     /**
      * PizzaRepository constructor.

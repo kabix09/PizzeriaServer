@@ -47,7 +47,7 @@ class Server
             switch (strtoupper($request->getMethod())) {
 
                 case Request::METHOD_GET: {
-                    $responseData = $this->api->get($request);
+                    $responseData = array_values($this->api->get($request));
                     break;
                 }
 
@@ -57,7 +57,7 @@ class Server
                 }
 
                 case Request::METHOD_PUT: {
-
+                    $responseData = $this->api->put($request);
                     break;
                 }
 
@@ -92,6 +92,8 @@ class Server
             }
         }
 
+        self::setHeader('Access-Control-Allow-Origin', '*');    // for allowing response for different clients
+        self::setHeader('Access-Control-Allow-Headers', '*');   // for allowing ajax requests from client app
         self::setHeader(Response::HEADER_CONTENT_TYPE, Response::CONTENT_TYPE_JSON);
 
         if(!empty($response->getCookies())) {

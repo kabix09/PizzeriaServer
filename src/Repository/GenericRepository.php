@@ -8,7 +8,7 @@ use Kreait\Firebase\Database\Reference;
 use Kreait\Firebase\Exception\DatabaseException;
 use Pizzeria\Connection\DbConnection;
 
-abstract class GenericRepository implements IRepository
+class GenericRepository implements IRepository
 {
     /**
      * @var Database
@@ -21,55 +21,50 @@ abstract class GenericRepository implements IRepository
     }
 
     /**
-     * @param string $name
      * @return mixed
      * @throws DatabaseException
      */
 
-    public function getAll()
+    public function get()
     {
         return $this->firebase
             ->getReference(static::DB_NAME)
             ->getValue();
     }
 
-    /**
-     * @param string $name
-     * @return mixed
-     * @throws DatabaseException
-     */
-    public function getByName(string $name)
+    public function getByKey(string $value, string $key = 'id'): array
     {
-        return $this->firebase
+        return array_values($this->firebase
             ->getReference(static::DB_NAME)
-            ->getChild($name)
-            ->getValue();
+            ->orderByChild($key)
+            ->equalTo($value)
+            ->getValue());
     }
 
     /**
-     * @param string $name
      * @param array $properties
+     * @param string $index
      * @return Reference
      * @throws DatabaseException
      */
-    public function create(string $name, array $properties): Reference
+    public function create(string $index, array $properties): Reference
     {
         return $this->firebase
             ->getReference(static::DB_NAME)
-            ->getChild($name)
+            ->getChild($index)
             ->set($properties);
     }
 
     /**
-     * @param string $name
+     * @param string $index
      * @param array $newElement
      * @return Reference
      * @throws DatabaseException
      */
-    public function update(string $name, array $newElement): Reference
+    public function update(string $index, array $newElement)
     {
         return $this->firebase
-            ->getReference(self::DB_NAME . '/' . $name)
+            ->getReference(static::DB_NAME . "/" . $index)
             ->update($newElement);
     }
 
@@ -81,21 +76,29 @@ abstract class GenericRepository implements IRepository
     public function remove(string $name): Reference
     {
         return $this->firebase
-            ->getReference(self::DB_NAME)
+            ->getReference(static::DB_NAME)
             ->getChild($name)
             ->remove();
     }
 
     /**
-     * @param string $name
+     * @param string $value
+     * @param string $key
      * @return bool
      * @throws DatabaseException
      */
-    public function isExists(string $name): bool
+    public function isExists(string $value, string $key = 'name'): bool
+    {
+        $queryResult = $this->firebase->getReference(static::DB_NAME)->orderByChild($key)->equalTo($value)->getValue();
+
+        return !empty($queryResult);
+    }
+
+    public function count(): int
     {
         return $this->firebase
             ->getReference(static::DB_NAME)
             ->getSnapshot()
-            ->hasChild($name);
+            ->numChildren();
     }
 }

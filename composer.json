@@ -18,6 +18,7 @@
   },
   "require": {
     "kreait/firebase-php": "5.x-dev",
-    "ext-json": "*"
+    "ext-json": "*",
+    "ramsey/uuid": "4.x-dev"
   }
 }

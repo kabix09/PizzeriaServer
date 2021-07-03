@@ -10,13 +10,7 @@ interface IRepository
     /**
      * @return mixed
      */
-    public function getAll();
-
-    /**
-     * @param string $name
-     * @return mixed
-     */
-    public function getByName(string $name);
+    public function get();
 
     /**
      * @param string $name

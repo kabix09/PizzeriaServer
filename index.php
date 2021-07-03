@@ -32,9 +32,9 @@ if(isset($_GET['api'])) {
         substr($_GET['api'], 4)
     );
 
-    $apiCalss = new $apiClassName(new DbConnection());
+    $apiClass = new $apiClassName();
 
-    $server = new Server($apiCalss);
+    $server = new Server($apiClass);
     $server->listen();
 }
 else
