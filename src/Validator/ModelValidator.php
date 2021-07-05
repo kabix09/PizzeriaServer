@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Pizzeria\Validator;
 
+use Pizzeria\Logger\ClientDataException;
 use Pizzeria\Repository\GenericRepository;
 use RuntimeException;
 
@@ -23,6 +24,7 @@ class ModelValidator extends GenericValidator
      * @param array $newProduct
      * @param bool $isSchemaRequired
      * @return bool
+     * @throws ClientDataException
      */
     public function validate(array $newProduct, bool $isSchemaRequired = true): bool
     {

@@ -5,15 +5,23 @@ namespace Pizzeria\Web;
 
 use Kreait\Firebase\Exception\DatabaseException;
 use Pizzeria\Api\GenericApi;
+use Pizzeria\Logger\ClientDataException;
+use Pizzeria\Logger\PizzeriaLogger;
 
 class Server
 {
-    public const ID_FIELD = 'name';
+    public const SERVER_ERROR_MES = 'Server error, please try again later';
     private const HEADER_SCHEMA = '%s: %s';
+
     /**
      * @var GenericApi
      */
     private $api;
+
+    /**
+     * @var PizzeriaLogger
+     */
+    private $logger;
 
     /**
      * Server constructor.
@@ -22,6 +30,7 @@ class Server
     public function __construct(GenericApi $api)
     {
         $this->api = $api;
+        $this->logger = new PizzeriaLogger();
     }
 
     /**
@@ -70,10 +79,18 @@ class Server
             $response->setData($responseData);
             $response->setStatusCode(Response::STATUS_200);
 
-        } catch (\Exception $exception) {
+        }catch (ClientDataException $clientDataException) {         // give the client info about request exception
+            $response->setData([
+                "message" => "request error: " . $clientDataException->getMessage()
+            ]);
+            $response->setStatusCode(Response::STATUS_400);
+        } catch (\Exception $exception) {                           // catch exception message into file
+            $this->logger->getLogger()->warning($exception->getMessage());
 
-            $response->setData(["message" => $exception->getMessage()]);
-            $response->setStatusCode(Response::STATUS_401);
+            $response->setData([
+                "message" => static::SERVER_ERROR_MES
+            ]);
+            $response->setStatusCode(Response::STATUS_500);
         }
 
         $this->processResponse($response);
@@ -109,7 +126,7 @@ class Server
      * @param bool $replace
      * @param int|null $statusCode
      */
-    public static function setHeader(string $header, string $contentType, bool $replace = true, $statusCode = Response::STATUS_200): void
+    public static function setHeader(string $header, string $contentType, bool $replace = true, $statusCode = null): void
     {
         header(
             sprintf(self::HEADER_SCHEMA, $header, $contentType),

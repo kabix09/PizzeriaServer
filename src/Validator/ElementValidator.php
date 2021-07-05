@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Pizzeria\Validator;
 
 use Kreait\Firebase\Exception\DatabaseException;
+use Pizzeria\Logger\ClientDataException;
 use Pizzeria\Repository\GenericRepository;
 
 class ElementValidator extends GenericValidator
@@ -40,6 +41,7 @@ class ElementValidator extends GenericValidator
      * @param bool $areElementsRequired
      * @return bool
      * @throws DatabaseException
+     * @throws ClientDataException
      */
     public function areElementsExist(array $elements = [], bool $areElementsRequired = false): bool
     {
@@ -55,7 +57,7 @@ class ElementValidator extends GenericValidator
 
         if(!empty($result)) {
             if($areElementsRequired) {
-                throw new \RuntimeException(sprintf(
+                throw new ClientDataException(sprintf(
                         self::ERRORS['nonexistent_element'],
                         static::ELEMENTS_GROUP,
                         implode(", ", $result)

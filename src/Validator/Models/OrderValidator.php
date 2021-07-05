@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Pizzeria\Validator\Models;
 
 use Pizzeria\Connection\DbConnection;
+use Pizzeria\Logger\ClientDataException;
 use Pizzeria\Repository\OrderRepository;
 use Pizzeria\Validator\Elements\SauceValidator;
 use Pizzeria\Validator\GenericValidator;
@@ -97,6 +98,7 @@ final class OrderValidator extends PaidProductsValidator
      * @param array $orderElements
      * @param string $elementName
      * @param callable $validatorFunction
+     * @throws ClientDataException
      */
     private function areElementsValid(array $orderElements, string $elementName, callable $validatorFunction): void
     {
@@ -105,7 +107,7 @@ final class OrderValidator extends PaidProductsValidator
             try {
                 $validatorFunction($element);
             } catch (\Exception $exception) {
-                throw new \RuntimeException(sprintf("order - %s: %s", $elementName, $exception->getMessage()));
+                throw new ClientDataException(sprintf("order - %s: %s", $elementName, $exception->getMessage()));
                 break;
             }
         }

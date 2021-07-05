@@ -5,6 +5,7 @@ namespace Pizzeria\Api;
 
 use Kreait\Firebase\Contract\Database;
 use Kreait\Firebase\Exception\DatabaseException;
+use Pizzeria\Logger\ClientDataException;
 use Pizzeria\Mapper\GenericMapper;
 use Pizzeria\Repository\GenericRepository;
 use Pizzeria\Validator\GenericValidator;
@@ -51,6 +52,7 @@ abstract class GenericApi implements IApi
      * @param Request $request
      * @return array
      * @throws DatabaseException
+     * @throws ClientDataException
      */
     public function get(Request $request): array
     {
@@ -60,7 +62,7 @@ abstract class GenericApi implements IApi
         if($name && isset($name)) {
             $fetchObject = $this->repository->getByKey(strtoupper($name), static::NAME_FIELD);
             if(empty($fetchObject)) {
-                throw new \RuntimeException(sprintf(self::ERRORS['invalid_name'], $this->validator::ELEMENTS_GROUP, $name));
+                throw new ClientDataException(sprintf(self::ERRORS['invalid_name'], $this->validator::ELEMENTS_GROUP, $name));
             }
             return $fetchObject;
         }
@@ -72,6 +74,7 @@ abstract class GenericApi implements IApi
      * @param Request $request
      * @return array
      * @throws DatabaseException
+     * @throws ClientDataException
      */
     public function post(Request $request): array
     {
@@ -100,6 +103,7 @@ abstract class GenericApi implements IApi
      * @param Request $request
      * @return array
      * @throws DatabaseException
+     * @throws ClientDataException
      */
     public function put(Request $request): array
     {
@@ -120,19 +124,20 @@ abstract class GenericApi implements IApi
 
     /**
      * @param Request $request
-     * @return bool
+     * @return array
      * @throws DatabaseException
+     * @throws ClientDataException
      */
     public function delete(Request $request): array
     {
         $id = $request->getDataByKey(static::ID_FIELD);
 
         if(empty($id) || !isset($id)) {
-            throw new \RuntimeException(sprintf(self::ERRORS['missing_id'], $this->validator::ELEMENTS_GROUP));     // error - required name
+            throw new ClientDataException(sprintf(self::ERRORS['missing_id'], $this->validator::ELEMENTS_GROUP));     // error - required name
         }
 
         if(!$this->repository->isExists($id, self::ID_FIELD)) {
-            throw new \RuntimeException(sprintf(self::ERRORS['invalid_id'], $this->validator::ELEMENTS_GROUP, $id));    // error - required name
+            throw new ClientDataException(sprintf(self::ERRORS['invalid_id'], $this->validator::ELEMENTS_GROUP, $id));    // error - required name
         }
 
         $this->repository->remove($id);

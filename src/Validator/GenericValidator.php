@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Pizzeria\Validator;
 
+use Pizzeria\Logger\ClientDataException;
 use Pizzeria\Repository\GenericRepository;
 
 abstract class GenericValidator implements IValidator, IExistsElement
@@ -29,6 +30,7 @@ abstract class GenericValidator implements IValidator, IExistsElement
      * @param array $newProduct
      * @param bool $isSchemaRequired
      * @return bool
+     * @throws ClientDataException
      */
     public function validate(array $newProduct, bool $isSchemaRequired = true): bool
     {
@@ -41,7 +43,7 @@ abstract class GenericValidator implements IValidator, IExistsElement
         });
 
         if (!empty($missingProperties)) {
-            throw new \RuntimeException(sprintf(self::ERRORS['missing_property'], static::ELEMENTS_GROUP, implode(", ", $missingProperties)));     // error - missing element
+            throw new ClientDataException(sprintf(self::ERRORS['missing_property'], static::ELEMENTS_GROUP, implode(", ", $missingProperties)));     // error - missing element
         }
 
         return true;

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Pizzeria\Validator\Models;
 
 use Pizzeria\Connection\DbConnection;
+use Pizzeria\Logger\ClientDataException;
 use Pizzeria\Repository\PizzaRepository;
 use Pizzeria\Validator\Elements\IngredientValidator;
 use Pizzeria\Validator\PaidProductsValidator;
@@ -28,6 +29,7 @@ final class PizzaValidator extends PaidProductsValidator
      * @param array $newPizza
      * @param bool $isSchemaRequired
      * @return bool
+     * @throws ClientDataException
      */
     public function validate(array $newPizza, bool $isSchemaRequired = true): bool
     {

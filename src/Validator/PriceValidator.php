@@ -41,7 +41,7 @@ abstract class PriceValidator extends GenericValidator
         /** @var array $elementsList */
         $elementsList = $this->repository->get();
 
-        return array_reduce($inputList, function($calculatedPrice, $elementsUuid) use ($elementsList) {
+        return array_reduce($inputList, static function($calculatedPrice, $elementsUuid) use ($elementsList) {
             return $calculatedPrice + $elementsList[$elementsUuid][self::ELEMENTS_GROUP];
         });
     }
