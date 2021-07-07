@@ -20,6 +20,8 @@
     "kreait/firebase-php": "5.x-dev",
     "ext-json": "*",
     "ramsey/uuid": "4.x-dev",
-    "monolog/monolog": "2.x-dev"
+    "monolog/monolog": "2.x-dev",
+    "zircote/swagger-php": "dev-master",
+    "doctrine/annotations": "1.14.x-dev"
   }
 }

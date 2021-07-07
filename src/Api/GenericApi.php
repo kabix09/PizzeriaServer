@@ -12,11 +12,33 @@ use Pizzeria\Validator\GenericValidator;
 use Pizzeria\Web\Request;
 use Ramsey\Uuid\Uuid;
 
+/**
+ * Class GenericApi
+ * @package Pizzeria\Api
+ * @OA\Info(title="Pizzeria API", version="0.1",
+ *  @OA\Contact(
+ *     email="kabix.009@gmail.com"
+ *  )
+ * )
+ *
+ */
 abstract class GenericApi implements IApi
 {
     public const ID_FIELD = 'id';
     public const NAME_FIELD = 'name';
     public const SCHEMA = [];
+
+    /**
+     * @OA\Schema(
+     *  schema="Error",
+     *  title="Error",
+     *  type="object",
+     *  @OA\Property(
+     *      property="message",
+     *      type="string"
+     *  )
+     * )
+     */
     protected const ERRORS = [
         'missing_id'=>'missing %s id property', 'invalid_id'=>'nonexistent %s id: %s',
         'missing_name' => 'missing %s name', 'invalid_name' => 'nonexistent %s name: %s'
@@ -58,9 +80,8 @@ abstract class GenericApi implements IApi
     {
         $name = $request->getDataByKey(static::NAME_FIELD);
 
-
         if($name && isset($name)) {
-            $fetchObject = $this->repository->getByKey(strtoupper($name), static::NAME_FIELD);
+            $fetchObject = $this->repository->getByKey($name, static::NAME_FIELD);
             if(empty($fetchObject)) {
                 throw new ClientDataException(sprintf(self::ERRORS['invalid_name'], $this->validator::ELEMENTS_GROUP, $name));
             }
