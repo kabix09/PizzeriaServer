@@ -6,13 +6,16 @@ namespace Pizzeria\Mapper;
 class GenericMapper implements IMapper
 {
 
-    public static function arrayToNoSqlMap(array $object): array
+    public static function buildObject(array $data, array $model): array
     {
-        // TODO: Implement arrayToNoSqlMap() method.
-    }
+        $newObject = [];
 
-    public static function noSqlMapToArray(array $noSqlMap, string $uuid): array
-    {
-        return array_merge(['id' => $uuid], $noSqlMap);
+        foreach ($model as $element) {
+            if(isset($data[$element])) {
+                $newObject[$element] = $data[$element];
+            }
+        }
+
+        return $newObject;
     }
 }

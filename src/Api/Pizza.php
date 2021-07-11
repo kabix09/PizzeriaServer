@@ -3,16 +3,11 @@ declare(strict_types=1);
 
 namespace Pizzeria\Api;
 
-use Kreait\Firebase\Contract\Database;
 use Kreait\Firebase\Exception\DatabaseException;
-use Lcobucci\JWT\Validation\Validator;
 use Pizzeria\Connection\DbConnection;
-use Pizzeria\Mapper\GenericMapper;
-use Pizzeria\Repository\IngredientRepository;
 use Pizzeria\Repository\PizzaRepository;
-use Pizzeria\Validator\PizzaValidator;
+use Pizzeria\Validator\Models\PizzaValidator;
 use Pizzeria\Web\Request;
-use Pizzeria\Web\Response;
 
 final class Pizza extends GenericApi
 {
@@ -22,21 +17,12 @@ final class Pizza extends GenericApi
     ];
 
     /**
-     * @var IngredientRepository
-     */
-    private $ingredientsRepository;
-
-    /**
      * Pizza constructor.
-     * @param DbConnection $dbConnection
      */
-    public function __construct(DbConnection $dbConnection)
+    public function __construct()
     {
-        parent::__construct($dbConnection, new PizzaRepository($dbConnection), new PizzaValidator());
-
-        $this->ingredientsRepository = new IngredientRepository($dbConnection);
+        parent::__construct(new PizzaRepository(new DbConnection()), new PizzaValidator());
     }
-
 
     /* -------- TOOLS FOR ADMIN -------- */
 
@@ -52,8 +38,7 @@ final class Pizza extends GenericApi
         parent::post($request);
 
         $newElement = $request->getData();
-        $existingIngredients = $this->ingredientsRepository->getAll();
-        $this->validator->validate($newElement, $existingIngredients);    // if not validate - throw exception
+        $this->validator->validate($newElement);    // if not validate - throw exception
 
         /** @var string $pizzaName */
         $pizzaName = $request->getDataByKey(self::ID_FIELD);

@@ -5,13 +5,10 @@ namespace Pizzeria\Api;
 
 use Kreait\Firebase\Contract\Database;
 use Kreait\Firebase\Exception\DatabaseException;
-use Pizzeria\Connection\DbConnection;
 use Pizzeria\Mapper\GenericMapper;
 use Pizzeria\Repository\GenericRepository;
 use Pizzeria\Validator\GenericValidator;
 use Pizzeria\Web\Request;
-use Pizzeria\Web\Response;
-use Pizzeria\Web\Server;
 
 abstract class GenericApi implements IApi
 {
@@ -36,13 +33,11 @@ abstract class GenericApi implements IApi
 
     /**
      * GenericApi constructor.
-     * @param DbConnection $dbConnection
      * @param GenericRepository $repository
      * @param GenericValidator $validator
      */
-    public function __construct(DbConnection $dbConnection, GenericRepository $repository, GenericValidator $validator)
+    public function __construct(GenericRepository $repository, GenericValidator $validator)
     {
-        $this->connection = $dbConnection->getFirebase();
         $this->repository = $repository;
         $this->validator = $validator;
     }
@@ -69,7 +64,7 @@ abstract class GenericApi implements IApi
      */
     public function getAll(): array
     {
-        $elements = $this->repository->getAll();
+        $elements = $this->repository->getAll() ?? array();
 
         $resultArray = [];
         foreach ($elements as $key => $value) {

@@ -6,18 +6,17 @@ namespace Pizzeria\Api;
 use Kreait\Firebase\Exception\DatabaseException;
 use Pizzeria\Connection\DbConnection;
 use Pizzeria\Repository\SauceRepository;
-use Pizzeria\Validator\SauceValidator;
+use Pizzeria\Validator\Elements\SauceValidator;
 use Pizzeria\Web\Request;
 
 class Sauce extends GenericApi
 {
     /**
      * Sauce constructor.
-     * @param DbConnection $dbConnection
      */
-    public function __construct(DbConnection $dbConnection)
+    public function __construct()
     {
-        parent::__construct($dbConnection, new SauceRepository($dbConnection), new SauceValidator());
+        parent::__construct(new SauceRepository(new DbConnection()), new SauceValidator());
     }
 
     /**

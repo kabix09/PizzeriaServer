@@ -5,9 +5,8 @@ namespace Pizzeria\Api;
 
 use Kreait\Firebase\Exception\DatabaseException;
 use Pizzeria\Connection\DbConnection;
-use Pizzeria\Repository\GenericRepository;
 use Pizzeria\Repository\IngredientRepository;
-use Pizzeria\Validator\IngredientValidator;
+use Pizzeria\Validator\Elements\IngredientValidator;
 use Pizzeria\Web\Request;
 
 final class Ingredient extends GenericApi
@@ -15,19 +14,18 @@ final class Ingredient extends GenericApi
 
     /**
      * Ingredient constructor.
-     * @param DbConnection $dbConnection
      */
-    public function __construct(DbConnection $dbConnection)
+    public function __construct()
     {
-        parent::__construct($dbConnection, new IngredientRepository($dbConnection), new IngredientValidator());
+        parent::__construct(new IngredientRepository(new DbConnection()), new IngredientValidator());
     }
 
     /**
      * @param Request $request
-     * @return string
+     * @return array
      * @throws DatabaseException
      */
-    public function post(Request $request): string
+    public function post(Request $request): array
     {
         parent::post($request);
 

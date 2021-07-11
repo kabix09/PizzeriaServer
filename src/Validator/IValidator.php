@@ -5,11 +5,10 @@ namespace Pizzeria\Validator;
 
 interface IValidator
 {
-    public const REQUIRED_VARS = [];
-
     /**
      * @param array $newProduct
-     * @return array
+     * @param bool $isSchemaRequired
+     * @return bool
      */
-    public function validate(array $newProduct): bool;
+    public function validate(array $newProduct, bool $isSchemaRequired = true): bool;
 }
