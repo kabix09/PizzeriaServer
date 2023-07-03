@@ -1,0 +1,51 @@
+# source
+# https://github.com/akkivarma/Docker-local/tree/master
+version: '3.8'
+
+services:
+  apache:
+    build:
+      context: ./docker/apache
+      dockerfile: apache.dockerfile
+    hostname: 'apache.container'
+    container_name: 'apache'
+    volumes:
+      - .:/var/www/html/PizzeriaServer
+    environment:
+      - PROJECT_DIR=/var/www/html
+      - PROJECT_NAME=PizzeriaServer
+    ports:
+      - 80:80
+    depends_on:
+      - php_fpm
+    networks:
+      - pizzeria-network
+
+  php_fpm:
+    build:
+      context: ./docker/php-fpm
+      dockerfile: php.dockerfile
+    hostname: 'fpm.container'
+    container_name: 'fpm'
+    volumes:
+      - .:/var/www/html/PizzeriaServer
+    ports:
+      - 9000:9000
+    networks:
+      - pizzeria-network
+
+  composer:
+    image: composer:latest
+    container_name: composer
+    volumes:
+      - .:/var/www/html/PizzeriaServer
+    depends_on:
+      - php_fpm
+    networks:
+      - pizzeria-network
+    working_dir: /var/www/html/PizzeriaServer
+    entrypoint: ['composer', 'install'] #--ignore-platform-reqs
+
+networks:
+  pizzeria-network:
+    driver: bridge
